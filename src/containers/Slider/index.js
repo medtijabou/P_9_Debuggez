@@ -7,24 +7,29 @@ import "./style.scss";
 const Slider = () => {
   const { data } = useData();
   const [index, setIndex] = useState(0);
-  const byDateDesc = data?.focus.sort((evtA, evtB) =>
-    new Date(evtA.date) < new Date(evtB.date) ? -1 : 1
-  );
 
-  const nextCard = () => {
-    setTimeout(() => {
-      setIndex(prevIndex => (prevIndex < byDateDesc.length - 1 ? prevIndex + 1 : 0));
-    }, 5000);
-  };
+  // ✅ Vérifie si data.focus est un tableau et tri les événements par date
+  const byDateDesc = Array.isArray(data?.focus)
+    ? [...data.focus].sort((evtA, evtB) =>
+        new Date(evtA.date) < new Date(evtB.date) ? -1 : 1
+      )
+    : [];
 
+  // ✅ Utilisation de setInterval pour changer l'index toutes les 5 secondes
   useEffect(() => {
-    nextCard();
-  }, [index]);
+    const interval = setInterval(() => {
+      setIndex(prevIndex => (prevIndex < byDateDesc.length - 1 ? prevIndex + 1 : 0));
+    }, 5000); // intervalle de 5 secondes pour changer l'index
+
+    // Nettoyage de l'intervalle à la destruction du composant
+    return () => clearInterval(interval);
+  }, [byDateDesc.length]); // Ce useEffect ne se déclenche qu'une seule fois au montage
+
 
   return (
     <div className="SlideCardList">
-      {byDateDesc?.map((event, idx) => (
-        <div key={event.id}> {/* Utilisation de event.id comme clé unique */}
+      {byDateDesc.map((event, idx) => (
+        <div key={event.id}> {/* ✅ Utilisation de event.id comme clé unique */}
           <div
             className={`SlideCard SlideCard--${
               index === idx ? "display" : "hide"
@@ -39,21 +44,24 @@ const Slider = () => {
               </div>
             </div>
           </div>
-          <div className="SlideCard__paginationContainer">
-            <div className="SlideCard__pagination">
-              {byDateDesc.map((_, radioIdx) => (
-                <input
-                  key={byDateDesc[radioIdx].id}  // Utilisation de l'id unique de chaque événement
-                  type="radio"
-                  name="radio-button"
-                  checked={idx === radioIdx}
-                  onChange={() => setIndex(radioIdx)}
-                />
-              ))}
-            </div>
-          </div>
         </div>
       ))}
+
+      {/* ✅ Correction : pagination déplacée hors de la boucle map principale */}
+      <div className="SlideCard__paginationContainer">
+  <div className="SlideCard__pagination">
+    {byDateDesc.map((_, radioIdx) => (
+      <input
+        key={byDateDesc[radioIdx].id} // ✅ Correction ici
+        type="radio"
+        name="radio-button"
+        checked={index === radioIdx}
+        onChange={() => setIndex(radioIdx)}
+      />
+    ))}
+  </div>
+</div>
+
     </div>
   );
 };
