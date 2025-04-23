@@ -4,33 +4,50 @@ import { getMonth } from "../../helpers/Date";
 
 import "./style.scss";
 
+/** SLIDER
+ * permet d'afficher une liste d'événements sous forme de carrousel.
+ * Ce composant utilise les données fournies par le contexte DataContext.
+ * @returns {JSX.Element} Élément JSX représentant le composant Slider.
+ */
 const Slider = () => {
-  const { data } = useData();
-  const [index, setIndex] = useState(0);
+  const { data } = useData(); // Récupération des données depuis le contexte DataContext.
+  const [index, setIndex] = useState(0); // État local pour gérer l'index du slide actuel.
 
-  // ✅ Vérifie si data.focus est un tableau et tri les événements par date
-  const byDateDesc = Array.isArray(data?.focus)
-    ? [...data.focus].sort((evtA, evtB) =>
-        new Date(evtA.date) < new Date(evtB.date) ? -1 : 1
-      )
-    : [];
+  /** BY DATE DESC
+  * Trie les événements par date de manière décroissante.
+  * @type {Array<object>} Tableau d'événements triés par date.
+  */
+  const byDateDesc = data?.focus.sort(
+    (evtA, evtB) => 
+      new Date(evtA.date) - new Date(evtB.date)
+  );
 
-  // ✅ Utilisation de setInterval pour changer l'index toutes les 5 secondes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex(prevIndex => (prevIndex < byDateDesc.length - 1 ? prevIndex + 1 : 0));
-    }, 5000); // intervalle de 5 secondes pour changer l'index
+  /** NEXT CARD
+  * Fonction pour passer au slide suivant dans le carrousel.
+  */
+  const nextCard = () => {
+    setIndex(index < (byDateDesc && byDateDesc.length - 1) ? index + 1 : 0);
+  };
 
-    // Nettoyage de l'intervalle à la destruction du composant
-    return () => clearInterval(interval);
-  }, [byDateDesc.length]); // Ce useEffect ne se déclenche qu'une seule fois au montage
-
+  /** USE EFFECT
+  * Effet pour déclencher le changement de slide automatiquement toutes les 5 secondes.
+  */
+  useEffect (() => {
+    const timeOutSlider = setTimeout(() => {
+      nextCard();
+    }, 5000);
+    return () => clearTimeout(timeOutSlider); // Nettoyage du timer lors du démontage du composant.
+  }, [nextCard]);
 
   return (
     <div className="SlideCardList">
-      {byDateDesc.map((event, idx) => (
-        <div key={event.id}> {/* ✅ Utilisation de event.id comme clé unique */}
+      {byDateDesc?.map((event, idx) => (
+        // Message dans la console -- Warning: Each child in a list should have a unique "key" prop.
+        // https://reactjs.org/link/warning-keys
+        // Math.random() est une fonction JavaScript qui génère un nombre aléatoire entre 0 (inclus) et 1 (exclus). Cela signifie que chaque fois que cet élément est rendu, il aura une nouvelle clé.
+        <div key={Math.random()}>
           <div
+            key={event.title}
             className={`SlideCard SlideCard--${
               index === idx ? "display" : "hide"
             }`}
@@ -44,24 +61,21 @@ const Slider = () => {
               </div>
             </div>
           </div>
+          <div className="SlideCard__paginationContainer">
+            <div className="SlideCard__pagination">
+              {byDateDesc.map((_, radioIdx) => (
+                <input
+                  key={`${Math.random()}`}
+                  type="radio"
+                  name="radio-button"
+                  checked={index === radioIdx}
+                  onChange={() => setIndex(radioIdx)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       ))}
-
-      {/* ✅ Correction : pagination déplacée hors de la boucle map principale */}
-      <div className="SlideCard__paginationContainer">
-  <div className="SlideCard__pagination">
-    {byDateDesc.map((_, radioIdx) => (
-      <input
-        key={byDateDesc[radioIdx].id} // ✅ Correction ici
-        type="radio"
-        name="radio-button"
-        checked={index === radioIdx}
-        onChange={() => setIndex(radioIdx)}
-      />
-    ))}
-  </div>
-</div>
-
     </div>
   );
 };
