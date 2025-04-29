@@ -42,7 +42,7 @@ const Form = ({ onSuccess, onError }) => {
             titleEmpty
           />
           <Field placeholder="" label="Email" />
-          <Button type={BUTTON_TYPES.SUBMIT} disabled={sending}>
+          <Button className ="btn_desk"type={BUTTON_TYPES.SUBMIT} disabled={sending}>
             {sending ? "En cours" : "Envoyer"}
           </Button>
         </div>
@@ -53,6 +53,7 @@ const Form = ({ onSuccess, onError }) => {
             type={FIELD_TYPES.TEXTAREA}
           />
         </div>
+
       </div>
     </form>
   );

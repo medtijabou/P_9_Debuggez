@@ -3,6 +3,7 @@
 header {
   height: 112px;
 }
+
 nav {
   font-family: "Manrope", sans-serif;
   font-weight: 500;
@@ -11,21 +12,78 @@ nav {
   justify-content: space-between;
   align-items: center;
   height: 80px;
+  position: relative;
+
+
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+    span {
+      background-color: $black;
+      height: 3px;
+      width: 100%;
+      border-radius: 3px;
+    }
+  }
+
   ul {
     list-style: none;
     display: flex;
     width: 80%;
     justify-content: flex-end;
+    align-items: center;
     margin: 0;
+    
     li {
       list-style: none;
-      margin: 40px;
-      padding: 0;
+      margin: 0 20px;
       a {
         text-decoration: none;
         color: $black;
       }
     }
-    padding-right: 50px;
+  }
+
+  .menu.open {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .menu-toggle {
+      display: flex;
+      margin-right: 20px;
+    }
+
+    ul {
+      position: absolute;
+      top: 80px;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      display: none;
+      z-index: 10;
+
+      li {
+        margin: 20px 0;
+      }
+
+      /* Affichage du bouton Contact dans le menu hamburger */
+      .contact-btn {
+        margin-top: 20px;
+       
+        width: 100%;
+      }
+    }
+
+    .menu.open {
+      display: flex;
+    }
   }
 }
